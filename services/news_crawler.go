@@ -11,6 +11,8 @@ import (
 	"btc-news-crawler/clients"
 	"btc-news-crawler/models"
 
+	"btc-news-crawler/models/configs"
+
 	"github.com/gocolly/colly/v2"
 )
 
@@ -25,7 +27,7 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 		log.Fatal(err)
 	}
 
-	var config models.CrawlerConfig
+	var config configs.NewsCrawlerConfig
 	err = json.Unmarshal(data, &config)
 	if err != nil {
 		log.Fatal("🛑 JSON parsing error:", err)
@@ -65,15 +67,23 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 }
 
 func (s *NewsCrawlerService) StartCrawlers() {
-	for start_URL, crawler := range s.Crawlers {
-		crawler.Visit(start_URL)
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
+	for range ticker.C {
+		for startURL, crawler := range s.Crawlers {
+			go func(url string, c *colly.Collector) {
+				log.Printf("🚀 Running news crawler for %s", url)
+				if err := c.Visit(url); err != nil {
+					log.Printf("🛑 News scraping error for %s: %v", url, err)
+				}
+			}(startURL, crawler.Clone())
+		}
 	}
 }
 
-func NewNewsCrawlerService() *NewsCrawlerService {
-	connection_string := os.Getenv("CLICKHOUSE_CONNECTION_STRING")
+func NewNewsCrawlerService(c *clients.ClickhouseClient) *NewsCrawlerService {
 	return &NewsCrawlerService{
 		Crawlers:         make(map[string]colly.Collector),
-		ClickhouseClient: clients.NewClickhouseClient(connection_string),
+		ClickhouseClient: c,
 	}
 }

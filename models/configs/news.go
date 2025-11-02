@@ -1,6 +1,6 @@
-package models
+package configs
 
-type CrawlerConfig struct {
+type NewsCrawlerConfig struct {
 	Name            string   `json:"name"`
 	StartURL        string   `json:"start_url"`
 	AllowedDomains  []string `json:"allowed_domains"`
