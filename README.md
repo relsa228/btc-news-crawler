@@ -1,2 +1,2 @@
 # btc-news-crawler
-Crawler to data collecting for BTC quotes prediction
+A data crawler has been implemented for news resources and a quotes collector for BTC/USD prices.
