@@ -1,0 +1,10 @@
+{
+  "name": "The Washington Post",
+  "start_url": "https://www.washingtonpost.com/",
+  "allowed_domains": ["washingtonpost.com", "www.washingtonpost.com"],
+  "article_selector": ".headline>h2>a",
+  "title_selector": "#main-content",
+  "content_selector": "article.grid-article",
+  "date_selector": "time > div > span:first-child",
+  "follow_links": true
+}

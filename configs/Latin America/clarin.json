@@ -1,0 +1,10 @@
+{
+  "name": "Clarín",
+  "start_url": "https://www.clarin.com/",
+  "allowed_domains": ["clarin.com", "www.clarin.com"],
+  "article_selector": "article > div > a",
+  "title_selector": "h1.storyTitle",
+  "content_selector": "div.cuerpo",
+  "date_selector": "span.createDate",
+  "follow_links": true
+}

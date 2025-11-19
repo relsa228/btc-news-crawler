@@ -1,0 +1,10 @@
+{
+  "name": "Der Spiegel",
+  "start_url": "https://www.spiegel.de/international/",
+  "allowed_domains": ["spiegel.de", "www.spiegel.de"],
+  "article_selector": "figure a",
+  "title_selector": "h2 > span:nth-child(2)",
+  "content_selector": "article section",
+  "date_selector": "time.timeformat",
+  "follow_links": true
+}

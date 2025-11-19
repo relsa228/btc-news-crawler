@@ -1,0 +1,10 @@
+{
+  "name": "USA Today",
+  "start_url": "https://www.usatoday.com/",
+  "allowed_domains": ["usatoday.com", "www.usatoday.com"],
+  "article_selector": "div.p1-title-spacer",
+  "title_selector": "h1.display-2",
+  "content_selector": "article.story",
+  "date_selector": "lit-timestamp",
+  "follow_links": true
+}

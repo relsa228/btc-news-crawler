@@ -1,0 +1,10 @@
+{
+  "name": "Deutsche Welle",
+  "start_url": "https://www.dw.com/en/top-stories/s-9097",
+  "allowed_domains": ["dw.com", "www.dw.com"],
+  "article_selector": "h3>a",
+  "title_selector": "h1",
+  "content_selector": "div.content-area",
+  "date_selector": "time",
+  "follow_links": true
+}

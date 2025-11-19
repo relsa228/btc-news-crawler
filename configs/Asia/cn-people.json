@@ -1,0 +1,10 @@
+{
+  "name": "People’s Daily",
+  "start_url": "http://en.people.cn/",
+  "allowed_domains": ["en.people.cn"],
+  "article_selector": "div a",
+  "title_selector": "h1",
+  "content_selector": "body>div>div:nth-child(3)",
+  "date_selector": "div.origin > span",
+  "follow_links": true
+}

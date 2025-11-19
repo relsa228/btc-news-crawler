@@ -1,0 +1,10 @@
+{
+  "name": "The Guardian",
+  "start_url": "https://www.theguardian.com/",
+  "allowed_domains": ["theguardian.com", "www.theguardian.com"],
+  "article_selector": "div>div>a",
+  "title_selector": "article>div>div>div>div>div>h1",
+  "content_selector": "#maincontent",
+  "date_selector": "summary>span",
+  "follow_links": true
+}

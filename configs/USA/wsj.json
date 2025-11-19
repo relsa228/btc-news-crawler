@@ -1,0 +1,10 @@
+{
+  "name": "The Wall Street Journal",
+  "start_url": "https://www.wsj.com/",
+  "allowed_domains": ["wsj.com", "www.wsj.com"],
+  "article_selector": "div>div>div>div>h3>a>div",
+  "title_selector": "main>div>div>div>div>div>div>div>h1",
+  "content_selector": "article>div>section",
+  "date_selector": "article>div>div>div>div>div>div>div>p",
+  "follow_links": true
+}

@@ -1,0 +1,10 @@
+{
+  "name": "The Japan Times",
+  "start_url": "https://www.japantimes.co.jp/",
+  "allowed_domains": ["japantimes.co.jp", "www.japantimes.co.jp"],
+  "article_selector": "div.article-title>a",
+  "title_selector": "h1.title-article",
+  "content_selector": "div.article-body",
+  "date_selector": "div.publish-date",
+  "follow_links": true
+}

@@ -1,0 +1,10 @@
+{
+    "name": "El Comercio",
+    "start_url": "https://elcomercio.pe/",
+    "allowed_domains": ["elcomercio.pe"],
+    "article_selector": "h2.fs-wi__title>a",
+    "title_selector": "h1",
+    "content_selector": "section",
+    "date_selector": "time:first-child",
+    "follow_links": true
+}

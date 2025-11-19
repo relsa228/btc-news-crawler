@@ -1,0 +1,10 @@
+{
+    "name": "El País",
+    "start_url": "https://elpais.com/",
+    "allowed_domains": ["elpais.com"],
+    "article_selector": "article > header > h2 > a",
+    "title_selector": "h1",
+    "content_selector": "div.a_c",
+    "date_selector": "time",
+    "follow_links": true
+}

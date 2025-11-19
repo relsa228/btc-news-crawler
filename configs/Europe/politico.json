@@ -1,0 +1,10 @@
+{
+  "name": "Politico EU",
+  "start_url": "https://www.politico.eu/",
+  "allowed_domains": ["politico.eu", "www.politico.eu"],
+  "article_selector": "р2.card__title",
+  "title_selector": "header h1",
+  "content_selector": "div.article__content",
+  "date_selector": "div.date-time",
+  "follow_links": true
+}

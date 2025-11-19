@@ -1,0 +1,10 @@
+{
+  "name": "AllAfrica",
+  "start_url": "https://allafrica.com/",
+  "allowed_domains": ["allafrica.com"],
+  "article_selector": "div.foundation>a",
+  "title_selector": "h1",
+  "content_selector": "div.main",
+  "date_selector": "p.source",
+  "follow_links": true
+}

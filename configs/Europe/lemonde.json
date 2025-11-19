@@ -1,0 +1,10 @@
+{
+  "name": "Le Monde",
+  "start_url": "https://www.lemonde.fr/",
+  "allowed_domains": ["lemonde.fr", "www.lemonde.fr"],
+  "article_selector": "section a",
+  "title_selector": "h1",
+  "content_selector": "section.article__content",
+  "date_selector": "article>section>div>section>span",
+  "follow_links": true
+}

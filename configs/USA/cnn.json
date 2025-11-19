@@ -1,0 +1,10 @@
+{
+    "name": "CNN",
+    "start_url": "https://edition.cnn.com/",
+    "allowed_domains": ["edition.cnn.com"],
+    "article_selector": "div.container__item",
+    "title_selector": "h1.headline__text",
+    "content_selector": "div.article__content",
+    "date_selector": "timestamp__time-since",
+    "follow_links": true
+}

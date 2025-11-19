@@ -1,0 +1,10 @@
+{
+  "name": "Fox News",
+  "start_url": "https://www.foxnews.com/",
+  "allowed_domains": ["foxnews.com", "www.foxnews.com"],
+  "article_selector": "article.article",
+  "title_selector": "h1.headline",
+  "content_selector": "div.article-body",
+  "date_selector": "time.time",
+  "follow_links": true
+}

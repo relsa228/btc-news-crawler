@@ -1,0 +1,10 @@
+{
+  "name": "Yomiuri Shimbun",
+  "start_url": "https://www.yomiuri.co.jp/",
+  "allowed_domains": ["yomiuri.co.jp", "www.yomiuri.co.jp"],
+  "article_selector": "h3.title>a",
+  "title_selector": "h1",
+  "content_selector": "div.p-main-contents",
+  "date_selector": "time",
+  "follow_links": true
+}
