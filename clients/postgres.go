@@ -24,14 +24,13 @@ func NewDatabaseClient() *PostgresClient {
 
 func (c *PostgresClient) InsertNews(news *models.News) {
 	query := `
-		INSERT INTO news (url, title, content, publication_date, created_at, source)
-		VALUES (:url, :title, :content, :publication_date, :created_at, :source)
-		ON CONFLICT DO UPDATE SET
+		INSERT INTO news (url, title, content, publication_date, source)
+		VALUES (:url, :title, :content, :publication_date, :source)
+		ON CONFLICT (url, source) DO UPDATE SET
 			url = EXCLUDED.url,
 			title = EXCLUDED.title,
 			content = EXCLUDED.content,
 			publication_date = EXCLUDED.publication_date,
-			created_at = EXCLUDED.created_at,
 			source = EXCLUDED.source
 	`
 	_, err := c.ConnectionPool.NamedExec(query, news)
@@ -42,8 +41,8 @@ func (c *PostgresClient) InsertNews(news *models.News) {
 
 func (c *PostgresClient) InsertQuote(quote *models.Quote) {
 	query := `
-		INSERT INTO quotes (price, percent_change_1h, percent_change_24h, percent_change_7d, ticker, date)
-		VALUES (:price, :percent_change_1h, :percent_change_24h, :percent_change_7d, :ticker, :date)
+		INSERT INTO quotes (price, percent_change_1h, percent_change_24h, percent_change_7d, ticker)
+		VALUES (:price, :percent_change_1h, :percent_change_24h, :percent_change_7d, :ticker)
 	`
 	_, err := c.ConnectionPool.NamedExec(query, quote)
 	if err != nil {
@@ -62,14 +61,15 @@ func (c *PostgresClient) Migrate() error {
 		    percent_change_24h DOUBLE PRECISION,
 		    percent_change_7d DOUBLE PRECISION,
 		    ticker TEXT,
-		    date TIMESTAMP
+		    date timestamptz NOT NULL DEFAULT now ()
 		);
+
 		CREATE TABLE IF NOT EXISTS news (
 		    url TEXT,
 		    title TEXT,
 		    content TEXT,
-		    publication_date TIMESTAMP,
-		    created_at TIMESTAMP DEFAULT NOW(),
+		    publication_date TEXT,
+		    created_at timestamptz NOT NULL DEFAULT now (),
 		    source TEXT,
 		    PRIMARY KEY (url, source)
 		);

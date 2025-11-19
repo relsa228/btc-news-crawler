@@ -17,8 +17,8 @@ import (
 )
 
 type NewsCrawlerService struct {
-	Crawlers         map[string]colly.Collector
-	ClickhouseClient *clients.ClickhouseClient
+	Crawlers       map[string]*colly.Collector
+	DatabaseClient *clients.PostgresClient
 }
 
 func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
@@ -37,11 +37,27 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 		colly.Async(true),
 		colly.AllowedDomains(config.AllowedDomains...),
 	)
-	c.SetRequestTimeout(15 * time.Second)
+	c.OnRequest(func(r *colly.Request) {
+		log.Printf("🔗 Visiting: %s", r.URL.String())
+	})
+	c.OnResponse(func(r *colly.Response) {
+		log.Printf("✅ Received: %s", r.Request.URL)
+	})
+	//c.SetRequestTimeout(15 * time.Second)
+	c.IgnoreRobotsTxt = true
+
 	c.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 4, RandomDelay: 2 * time.Second})
 
-	c.OnHTML(config.TitleSelector, func(e *colly.HTMLElement) {
-		title := strings.TrimSpace(e.Text)
+	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
+		link := e.Request.AbsoluteURL(e.Attr("href"))
+		if link != "" {
+			e.Request.Visit(link)
+		}
+	})
+
+	c.OnHTML(config.ArticleSelector, func(e *colly.HTMLElement) {
+		log.Println("Title:", strings.TrimSpace(e.Text))
+		title := strings.TrimSpace(e.DOM.ParentsFiltered("body").Find(config.TitleSelector).Text())
 		content := strings.TrimSpace(e.DOM.ParentsFiltered("body").Find(config.ContentSelector).Text())
 		if title != "" && content != "" {
 			news := new(models.News)
@@ -52,10 +68,11 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 			news.PublicationDate = strings.TrimSpace(e.DOM.ParentsFiltered("body").Find(config.DateSelector).Text())
 			news.CreatedAt = time.Now()
 
-			s.ClickhouseClient.InsertNews(news)
+			s.DatabaseClient.InsertNews(news)
 			fmt.Printf("📰 Got news %s [%s]\n", news.Title, news.Source)
 		}
 	})
+
 	c.OnError(func(resp *colly.Response, err error) {
 		log.Printf("🛑 Request error %s: %v", resp.Request.URL, err)
 	})
@@ -63,27 +80,31 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 		log.Printf("✅ Resource %s has been scraped \n", config.Name)
 	})
 
-	s.Crawlers[config.StartURL] = *c.Clone()
+	s.Crawlers[config.StartURL] = c
+	log.Printf("✅ Crawler for %s has been set up\n", config.Name)
 }
 
 func (s *NewsCrawlerService) StartCrawlers() {
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
-	for range ticker.C {
+	for {
 		for startURL, crawler := range s.Crawlers {
 			go func(url string, c *colly.Collector) {
 				log.Printf("🚀 Running news crawler for %s", url)
 				if err := c.Visit(url); err != nil {
 					log.Printf("🛑 News scraping error for %s: %v", url, err)
 				}
-			}(startURL, crawler.Clone())
+				c.Wait()
+				log.Printf("✅ News crawler for %s has finished", url)
+			}(startURL, crawler)
 		}
+		<-ticker.C
 	}
 }
 
-func NewNewsCrawlerService(c *clients.ClickhouseClient) *NewsCrawlerService {
+func NewNewsCrawlerService(c *clients.PostgresClient) *NewsCrawlerService {
 	return &NewsCrawlerService{
-		Crawlers:         make(map[string]colly.Collector),
-		ClickhouseClient: c,
+		Crawlers:       make(map[string]*colly.Collector),
+		DatabaseClient: c,
 	}
 }
