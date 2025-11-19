@@ -21,15 +21,15 @@ const (
 )
 
 type QuotesCollectorService struct {
-	ApiKey           string
-	Endpoint         string
-	ClickhouseClient *clients.ClickhouseClient
+	ApiKey         string
+	Endpoint       string
+	DatabaseClient *clients.PostgresClient
 }
 
 func (s *QuotesCollectorService) StartQuotesCollecting() {
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
-	for range ticker.C {
+	for {
 		req, _ := http.NewRequest(REQUEST_METHOD, s.Endpoint, nil)
 		req.Header.Add(AUTH_HEADER, s.ApiKey)
 
@@ -37,12 +37,18 @@ func (s *QuotesCollectorService) StartQuotesCollecting() {
 		resp, err := client.Do(req)
 		if err != nil {
 			log.Printf("🛑 Quote response error: %s", err)
+			return
 		}
-		io.Copy(io.Discard, resp.Body)
-		resp.Body.Close()
+		defer resp.Body.Close() // обязательно закрываем в конце
 
-		body, _ := io.ReadAll(resp.Body)
+		// Читаем тело ответа
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("🛑 Error reading response body: %s", err)
+			return
+		}
 
+		// Выводим тело ответа
 		var apiResp responses.CoinmarketcapResponse
 		if err := json.Unmarshal(body, &apiResp); err != nil {
 			log.Printf("🛑 JSON parsing error: %s", err)
@@ -52,7 +58,7 @@ func (s *QuotesCollectorService) StartQuotesCollecting() {
 			log.Printf("🛑 CoinMarketCap error: %s", apiResp.Status.ErrorMessage)
 		}
 
-		btc := apiResp.Data[0]
+		btc := apiResp.Data["1"]
 
 		var q = models.Quote{
 			Price:            btc.Quote.USD.Price,
@@ -63,16 +69,18 @@ func (s *QuotesCollectorService) StartQuotesCollecting() {
 			Date:             time.Now().UTC(),
 		}
 
-		s.ClickhouseClient.InsertQuote(&q)
+		s.DatabaseClient.InsertQuote(&q)
+
+		<-ticker.C
 	}
 }
 
-func NewQuotesCollectorService(c *clients.ClickhouseClient) *QuotesCollectorService {
-	api_key := os.Getenv(env.API_KEY_ENV_VAR)
-	url := os.Getenv(env.API_ENDPOINT_ENV_VAR)
+func NewQuotesCollectorService(c *clients.PostgresClient) *QuotesCollectorService {
+	api_key := os.Getenv(env.API_KEY_VAR)
+	url := os.Getenv(env.API_ENDPOINT_VAR)
 	return &QuotesCollectorService{
-		ApiKey:           api_key,
-		Endpoint:         url,
-		ClickhouseClient: c,
+		ApiKey:         api_key,
+		Endpoint:       url,
+		DatabaseClient: c,
 	}
 }

@@ -6,7 +6,7 @@ type CoinmarketcapResponse struct {
 		ErrorCode    int    `json:"error_code"`
 		ErrorMessage string `json:"error_message"`
 	} `json:"status"`
-	Data []struct {
+	Data map[string]struct {
 		ID     int    `json:"id"`
 		Name   string `json:"name"`
 		Symbol string `json:"symbol"`
