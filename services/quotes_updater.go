@@ -11,13 +11,9 @@ import (
 	"btc-news-crawler/clients"
 	"btc-news-crawler/models"
 	"btc-news-crawler/models/responses"
+	consts "btc-news-crawler/shared/consts"
 
 	env "btc-news-crawler/shared"
-)
-
-const (
-	REQUEST_METHOD = "GET"
-	AUTH_HEADER    = "X-CMC_PRO_API_KEY"
 )
 
 type QuotesCollectorService struct {
@@ -30,8 +26,8 @@ func (s *QuotesCollectorService) StartQuotesCollecting() {
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
 	for {
-		req, _ := http.NewRequest(REQUEST_METHOD, s.Endpoint, nil)
-		req.Header.Add(AUTH_HEADER, s.ApiKey)
+		req, _ := http.NewRequest(consts.QUOTE_REQUEST_METHOD, s.Endpoint, nil)
+		req.Header.Add(consts.QUOTE_AUTH_HEADER, s.ApiKey)
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
@@ -39,16 +35,14 @@ func (s *QuotesCollectorService) StartQuotesCollecting() {
 			log.Printf("🛑 Quote response error: %s", err)
 			return
 		}
-		defer resp.Body.Close() // обязательно закрываем в конце
+		defer resp.Body.Close()
 
-		// Читаем тело ответа
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Printf("🛑 Error reading response body: %s", err)
 			return
 		}
 
-		// Выводим тело ответа
 		var apiResp responses.CoinmarketcapResponse
 		if err := json.Unmarshal(body, &apiResp); err != nil {
 			log.Printf("🛑 JSON parsing error: %s", err)

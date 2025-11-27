@@ -2,16 +2,16 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
 	"btc-news-crawler/clients"
 	"btc-news-crawler/models"
-
 	"btc-news-crawler/models/configs"
+	consts "btc-news-crawler/shared/consts"
 
 	"github.com/gocolly/colly/v2"
 )
@@ -33,44 +33,51 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 		log.Fatal("🛑 JSON parsing error:", err)
 	}
 
+	re := regexp.MustCompile(config.ArticleIdentifier)
+
 	c := colly.NewCollector(
 		colly.Async(true),
 		colly.AllowedDomains(config.AllowedDomains...),
 	)
-	c.OnRequest(func(r *colly.Request) {
-		log.Printf("🔗 Visiting: %s", r.URL.String())
-	})
-	c.OnResponse(func(r *colly.Response) {
-		log.Printf("✅ Received: %s", r.Request.URL)
-	})
+
+	// c.OnRequest(func(r *colly.Request) {
+	// 	log.Printf("🔗 Visiting: %s", r.URL.String())
+	// })
+	// c.OnResponse(func(r *colly.Response) {
+	// 	log.Printf("✅ Received: %s", r.Request.URL)
+	// })
 	//c.SetRequestTimeout(15 * time.Second)
+
 	c.IgnoreRobotsTxt = true
 
 	c.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 4, RandomDelay: 2 * time.Second})
 
-	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		link := e.Request.AbsoluteURL(e.Attr("href"))
+	c.OnHTML(consts.NEWS_LINK_SELECTOR, func(e *colly.HTMLElement) {
+		link := e.Request.AbsoluteURL(e.Attr(consts.NEWS_REFERENCE_SELECTOR))
 		if link != "" {
 			e.Request.Visit(link)
 		}
 	})
 
 	c.OnHTML(config.ArticleSelector, func(e *colly.HTMLElement) {
-		log.Println("Title:", strings.TrimSpace(e.Text))
-		title := strings.TrimSpace(e.DOM.ParentsFiltered("body").Find(config.TitleSelector).Text())
-		content := strings.TrimSpace(e.DOM.ParentsFiltered("body").Find(config.ContentSelector).Text())
-		if title != "" && content != "" {
-			news := new(models.News)
-			news.Title = title
-			news.Content = content
-			news.Url = e.Request.URL.String()
-			news.Source = config.Name
-			news.PublicationDate = strings.TrimSpace(e.DOM.ParentsFiltered("body").Find(config.DateSelector).Text())
-			news.CreatedAt = time.Now()
+		title := strings.TrimSpace(e.DOM.ParentsFiltered(consts.NEWS_BODY_SELECTOR).Find(config.TitleSelector).Text())
+		content := strings.TrimSpace(e.DOM.ParentsFiltered(consts.NEWS_BODY_SELECTOR).Find(config.ContentSelector).Text())
+		isMatch := re.MatchString(e.Request.URL.String())
 
-			s.DatabaseClient.InsertNews(news)
-			fmt.Printf("📰 Got news %s [%s]\n", news.Title, news.Source)
+		if title == "" || content == "" || !isMatch {
+			return
 		}
+		news := new(models.News)
+		news.Title = title
+		news.Content = content
+		news.Url = e.Request.URL.String()
+		news.Source = config.Name
+		news.PublicationDate = strings.TrimSpace(e.DOM.ParentsFiltered(consts.NEWS_BODY_SELECTOR).Find(config.DateSelector).Text())
+		news.CreatedAt = time.Now()
+
+		s.DatabaseClient.InsertNews(news)
+		log.Printf("📰 Got news %s [%s]\n", news.Title, news.Source)
+
 	})
 
 	c.OnError(func(resp *colly.Response, err error) {
