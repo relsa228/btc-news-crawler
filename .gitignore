@@ -34,3 +34,4 @@ go.work.sum
 *.sum
 btc-news-crawler
 .DS_Store
+*.log
