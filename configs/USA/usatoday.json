@@ -1,7 +1,12 @@
 {
   "name": "USA Today",
   "start_url": "https://www.usatoday.com/",
-  "allowed_domains": ["usatoday.com", "www.usatoday.com", "eu.usatoday.com"],
+  "allowed_domains": [
+    "usatoday.com",
+    "www.usatoday.com",
+    "eu.usatoday.com",
+    "usatoday30.usatoday.com"
+  ],
   "article_selector": "div.p1-title-spacer",
   "title_selector": "h1.display-2",
   "content_selector": "article.story",

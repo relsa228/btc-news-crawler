@@ -3,7 +3,6 @@ package services
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -11,9 +10,11 @@ import (
 	"btc-news-crawler/clients"
 	"btc-news-crawler/models"
 	"btc-news-crawler/models/responses"
-	consts "btc-news-crawler/shared/consts"
-
 	env "btc-news-crawler/shared"
+	consts "btc-news-crawler/shared/consts"
+	logger "btc-news-crawler/shared/log"
+
+	"go.uber.org/zap"
 )
 
 type QuotesCollectorService struct {
@@ -32,24 +33,24 @@ func (s *QuotesCollectorService) StartQuotesCollecting() {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Printf("🛑 Quote response error: %s", err)
+			logger.Log.Error("🛑 Quote response error: ", zap.Error(err))
 			return
 		}
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Printf("🛑 Error reading response body: %s", err)
+			logger.Log.Error("🛑 Error reading response body: %s", zap.Error(err))
 			return
 		}
 
 		var apiResp responses.CoinmarketcapResponse
 		if err := json.Unmarshal(body, &apiResp); err != nil {
-			log.Printf("🛑 JSON parsing error: %s", err)
+			logger.Log.Error("🛑 JSON parsing error: %s", zap.Error(err))
 		}
 
 		if apiResp.Status.ErrorCode != 0 {
-			log.Printf("🛑 CoinMarketCap error: %s", apiResp.Status.ErrorMessage)
+			logger.Log.Error("🛑 CoinMarketCap error: %s", zap.String("status", apiResp.Status.ErrorMessage))
 		}
 
 		btc := apiResp.Data["1"]

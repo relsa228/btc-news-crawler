@@ -1,7 +1,11 @@
 {
   "name": "Folha de S.Paulo",
   "start_url": "https://www.folha.uol.com.br/",
-  "allowed_domains": ["folha.uol.com.br", "www.folha.uol.com.br"],
+  "allowed_domains": [
+    "folha.uol.com.br",
+    "www.folha.uol.com.br",
+    "www1.folha.uol.com.br"
+  ],
   "article_selector": "a.c-headline__url",
   "title_selector": "h1",
   "content_selector": "div.c-news__body",

@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -12,8 +11,10 @@ import (
 	"btc-news-crawler/models"
 	"btc-news-crawler/models/configs"
 	consts "btc-news-crawler/shared/consts"
+	logger "btc-news-crawler/shared/log"
 
 	"github.com/gocolly/colly/v2"
+	"go.uber.org/zap"
 )
 
 type NewsCrawlerService struct {
@@ -24,13 +25,14 @@ type NewsCrawlerService struct {
 func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 	data, err := os.ReadFile(config_path)
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Error("🛑 JSON reading error:", zap.Error(err))
+		return
 	}
 
 	var config configs.NewsCrawlerConfig
 	err = json.Unmarshal(data, &config)
 	if err != nil {
-		log.Fatal("🛑 JSON parsing error:", err)
+		logger.Log.Error("🛑 JSON parsing error:", zap.Error(err))
 	}
 
 	re := regexp.MustCompile(config.ArticleIdentifier)
@@ -40,13 +42,12 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 		colly.AllowedDomains(config.AllowedDomains...),
 	)
 
-	// c.OnRequest(func(r *colly.Request) {
-	// 	log.Printf("🔗 Visiting: %s", r.URL.String())
-	// })
-	// c.OnResponse(func(r *colly.Response) {
-	// 	log.Printf("✅ Received: %s", r.Request.URL)
-	// })
-	//c.SetRequestTimeout(15 * time.Second)
+	c.OnRequest(func(r *colly.Request) {
+		logger.Log.Debug("🔗 Visiting", zap.String("url", r.URL.String()))
+	})
+	c.OnResponse(func(r *colly.Response) {
+		logger.Log.Debug("✅ Received:", zap.String("url", r.Request.URL.String()))
+	})
 
 	c.IgnoreRobotsTxt = true
 
@@ -76,19 +77,18 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 		news.CreatedAt = time.Now()
 
 		s.DatabaseClient.InsertNews(news)
-		log.Printf("📰 Got news %s [%s]\n", news.Title, news.Source)
-
+		logger.Log.Info("📰 Got news", zap.String("title", news.Title), zap.String("source", news.Source))
 	})
 
 	c.OnError(func(resp *colly.Response, err error) {
-		log.Printf("🛑 Request error %s: %v", resp.Request.URL, err)
+		logger.Log.Error("🛑 Request error", zap.Error(err), zap.String("url", resp.Request.URL.String()))
 	})
 	c.OnScraped(func(_ *colly.Response) {
-		log.Printf("✅ Resource %s has been scraped \n", config.Name)
+		logger.Log.Info("✅ Resource %s has been scraped", zap.String("name", config.Name))
 	})
 
 	s.Crawlers[config.StartURL] = c
-	log.Printf("✅ Crawler for %s has been set up\n", config.Name)
+	logger.Log.Info("✅ Crawler for %s has been set up", zap.String("name", config.Name))
 }
 
 func (s *NewsCrawlerService) StartCrawlers() {
@@ -97,12 +97,12 @@ func (s *NewsCrawlerService) StartCrawlers() {
 	for {
 		for startURL, crawler := range s.Crawlers {
 			go func(url string, c *colly.Collector) {
-				log.Printf("🚀 Running news crawler for %s", url)
+				logger.Log.Info("🚀 Running news crawler for", zap.String("url", url))
 				if err := c.Visit(url); err != nil {
-					log.Printf("🛑 News scraping error for %s: %v", url, err)
+					logger.Log.Error("🛑 News scraping error for", zap.String("url", url), zap.Error(err))
 				}
 				c.Wait()
-				log.Printf("✅ News crawler for %s has finished", url)
+				logger.Log.Info("✅ News crawler has finished", zap.String("url", url))
 			}(startURL, crawler)
 		}
 		<-ticker.C

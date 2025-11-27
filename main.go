@@ -3,7 +3,8 @@ package main
 import (
 	"btc-news-crawler/clients"
 	"btc-news-crawler/services"
-	env "btc-news-crawler/shared"
+	shared "btc-news-crawler/shared"
+	logger "btc-news-crawler/shared/log"
 	"log"
 	"os"
 	"path/filepath"
@@ -11,17 +12,21 @@ import (
 	"sync"
 
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 func main() {
+	logger.Init()
+	defer logger.Log.Sync()
+
 	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️ .env file not found")
+		logger.Log.Error("🛑 .env file not found")
 		return
 	}
 
 	// Collecting configs paths
 	var files []string
-	err := filepath.WalkDir(os.Getenv(env.CONFIG_DIR_VAR), func(path string, d os.DirEntry, err error) error {
+	err := filepath.WalkDir(os.Getenv(shared.CONFIG_DIR_VAR), func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			log.Println(err)
 			return nil
@@ -33,13 +38,13 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatalf("🛑 Config directory read error: %v", err)
+		logger.Log.Error("🛑 Config directory read error: ", zap.Error(err))
 	}
 
 	client := clients.NewDatabaseClient()
-	if os.Getenv(env.NEED_MIGRATION_VAR) == "true" {
+	if os.Getenv(shared.NEED_MIGRATION_VAR) == "true" {
 		if err := client.Migrate(); err != nil {
-			log.Fatalf("🛑 Error creating tables: %v", err)
+			logger.Log.Error("🛑 Error creating tables: ", zap.Error(err))
 		}
 	}
 

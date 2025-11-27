@@ -3,11 +3,14 @@ package clients
 import (
 	"btc-news-crawler/models"
 	env "btc-news-crawler/shared"
-	"log"
 	"os"
+
+	logger "btc-news-crawler/shared/log"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+
+	"go.uber.org/zap"
 )
 
 type PostgresClient struct {
@@ -35,7 +38,7 @@ func (c *PostgresClient) InsertNews(news *models.News) {
 	`
 	_, err := c.ConnectionPool.NamedExec(query, news)
 	if err != nil {
-		log.Printf("🛑 Error inserting news: %v", err)
+		logger.Log.Error("🛑 Error inserting news", zap.Error(err))
 	}
 }
 
@@ -46,7 +49,7 @@ func (c *PostgresClient) InsertQuote(quote *models.Quote) {
 	`
 	_, err := c.ConnectionPool.NamedExec(query, quote)
 	if err != nil {
-		log.Printf("🛑 Error inserting quote: %v", err)
+		logger.Log.Error("🛑 Error inserting quote", zap.Error(err))
 	}
 }
 

@@ -1,4 +1,4 @@
-package env
+package shared
 
 const (
 	API_KEY_VAR                    = "COINMARKETCAP_API_KEY"
