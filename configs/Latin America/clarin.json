@@ -6,5 +6,6 @@
   "title_selector": "h1.storyTitle",
   "content_selector": "div.cuerpo",
   "date_selector": "span.createDate",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "[A-Za-z0-9]{10}\\.html$"
 }

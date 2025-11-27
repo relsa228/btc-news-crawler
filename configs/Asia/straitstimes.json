@@ -1,10 +1,11 @@
 {
-  "name": "The Straits Times",
-  "start_url": "https://www.straitstimes.com/",
-  "allowed_domains": ["straitstimes.com", "www.straitstimes.com"],
-  "article_selector": "div.row-wrapper>a",
-  "title_selector": "h1",
-  "content_selector": "div.storyline-wrapper",
-  "date_selector": "div.timestamp-element>p",
-  "follow_links": true
+    "name": "The Straits Times",
+    "start_url": "https://www.straitstimes.com/",
+    "allowed_domains": ["straitstimes.com", "www.straitstimes.com"],
+    "article_selector": "div.row-wrapper>a",
+    "title_selector": "h1",
+    "content_selector": "div.storyline-wrapper",
+    "date_selector": "div.timestamp-element>p",
+    "follow_links": true,
+    "article_identifier": "\\/[^\\/]+\\/[^\\/]+\\/[^\\/]+$"
 }

@@ -1,10 +1,11 @@
 {
-  "name": "Reuters",
-  "start_url": "https://www.reuters.com/",
-  "allowed_domains": ["reuters.com", "www.reuters.com"],
-  "article_selector": "section ul div>a",
-  "title_selector": "h1",
-  "content_selector": "main>article>div>div>div>div>div:nth-child(2)",
-  "date_selector": "time",
-  "follow_links": true
+    "name": "Reuters",
+    "start_url": "https://www.reuters.com/",
+    "allowed_domains": ["reuters.com", "www.reuters.com"],
+    "article_selector": "section ul div>a",
+    "title_selector": "h1",
+    "content_selector": "main>article>div>div>div>div>div:nth-child(2)",
+    "date_selector": "time",
+    "follow_links": true,
+    "article_identifier": "\\d{4}-\\d{2}-\\d{2}\\/$"
 }

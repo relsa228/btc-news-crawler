@@ -6,5 +6,6 @@
     "title_selector": "h1.headline__text",
     "content_selector": "div.article__content",
     "date_selector": "timestamp__time-since",
-    "follow_links": true
+    "follow_links": true,
+    "article_identifier": "\\/\\d{4}\\/\\d{2}\\/\\d{2}\\/"
 }

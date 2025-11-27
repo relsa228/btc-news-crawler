@@ -6,5 +6,6 @@
   "title_selector": "h1",
   "content_selector": "body>div>div:nth-child(3)",
   "date_selector": "div.origin > span",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "\\/\\d{8}\\/"
 }

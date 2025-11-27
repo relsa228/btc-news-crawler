@@ -1,10 +1,11 @@
 {
-  "name": "The Economist",
-  "start_url": "https://www.economist.com/",
-  "allowed_domains": ["economist.com", "www.economist.com"],
-  "article_selector": "section div>h3>a",
-  "title_selector": "article section h1",
-  "content_selector": "main>article>div>div >div>div>section",
-  "date_selector": "time",
-  "follow_links": true
+    "name": "The Economist",
+    "start_url": "https://www.economist.com/",
+    "allowed_domains": ["economist.com", "www.economist.com"],
+    "article_selector": "section div>h3>a",
+    "title_selector": "article section h1",
+    "content_selector": "main>article>div>div >div>div>section",
+    "date_selector": "time",
+    "follow_links": true,
+    "article_identifier": "\\/\\d{4}\\/\\d{2}\\/\\d{2}\\/"
 }

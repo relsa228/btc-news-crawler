@@ -1,10 +1,11 @@
 {
   "name": "BBC News",
   "start_url": "https://www.bbc.com/news",
-  "allowed_domains": ["bbc.com", "www.bbc.com"],
+  "allowed_domains": ["bbc.com", "www.bbc.com", "www.bbc.co.uk"],
   "article_selector": "h2",
   "title_selector": "h1",
   "content_selector": "article",
   "date_selector": "time",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "\\/articles\\/c[a-z0-9]+"
 }

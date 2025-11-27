@@ -6,5 +6,6 @@
   "title_selector": "div.storytitle > h1",
   "content_selector": "div.storytext",
   "date_selector": "span.time",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "\\/\\d{4}\\/\\d{2}\\/\\d{2}\\/"
 }

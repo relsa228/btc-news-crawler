@@ -1,10 +1,11 @@
 {
-    "name": "El País",
-    "start_url": "https://elpais.com/",
-    "allowed_domains": ["elpais.com"],
-    "article_selector": "article > header > h2 > a",
-    "title_selector": "h1",
-    "content_selector": "div.a_c",
-    "date_selector": "time",
-    "follow_links": true
+  "name": "El País",
+  "start_url": "https://english.elpais.com/",
+  "allowed_domains": ["elpais.com", "english.elpais.com"],
+  "article_selector": "article > header > h2 > a",
+  "title_selector": "h1",
+  "content_selector": "div.a_c",
+  "date_selector": "time",
+  "follow_links": true,
+  "article_identifier": "\\/\\d{4}\\/\\d{2}\\/\\d{2}\\/"
 }

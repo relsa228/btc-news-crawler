@@ -6,5 +6,6 @@
   "title_selector": "h1.headline",
   "content_selector": "div.article-body",
   "date_selector": "time.time",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "^.{60,}$"
 }

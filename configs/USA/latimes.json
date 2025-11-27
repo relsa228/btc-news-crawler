@@ -1,10 +1,11 @@
 {
-  "name": "Los Angeles Times",
-  "start_url": "https://www.latimes.com/",
-  "allowed_domains": ["latimes.com", "www.latimes.com"],
-  "article_selector": "h2.promo-title > a",
-  "title_selector": "h1.headline",
-  "content_selector": "article.story",
-  "date_selector": "span.published-time",
-  "follow_links": true
+    "name": "Los Angeles Times",
+    "start_url": "https://www.latimes.com/",
+    "allowed_domains": ["latimes.com", "www.latimes.com"],
+    "article_selector": "h2.promo-title > a",
+    "title_selector": "h1.headline",
+    "content_selector": "article.story",
+    "date_selector": "span.published-time",
+    "follow_links": true,
+    "article_identifier": "\\/\\d{4}-\\d{2}-\\d{2}\\/"
 }

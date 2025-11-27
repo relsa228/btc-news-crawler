@@ -6,5 +6,6 @@
   "title_selector": "h1",
   "content_selector": "div.main",
   "date_selector": "p.source",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "\\/stories\\/\\d{12}\\.html$"
 }

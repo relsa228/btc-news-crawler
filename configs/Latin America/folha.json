@@ -6,5 +6,6 @@
   "title_selector": "h1",
   "content_selector": "div.c-news__body",
   "date_selector": "time",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "\\/\\w+\\/\\d{4}\\/\\d{2}\\/"
 }

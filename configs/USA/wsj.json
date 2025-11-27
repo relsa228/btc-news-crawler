@@ -6,5 +6,6 @@
   "title_selector": "main>div>div>div>div>div>div>div>h1",
   "content_selector": "article>div>section",
   "date_selector": "article>div>div>div>div>div>div>div>p",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "[a-z0-9]{8}$"
 }

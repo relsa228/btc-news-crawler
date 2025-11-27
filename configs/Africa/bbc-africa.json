@@ -1,10 +1,11 @@
 {
-  "name": "BBC News",
+  "name": "BBC News Africa",
   "start_url": "https://www.bbc.com/news/world/africa",
   "allowed_domains": ["bbc.com", "www.bbc.com"],
   "article_selector": "h2",
   "title_selector": "h1",
   "content_selector": "article",
   "date_selector": "time",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "\\/articles\\/c[a-z0-9]{10}$"
 }

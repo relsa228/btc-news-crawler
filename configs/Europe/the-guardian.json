@@ -6,5 +6,6 @@
   "title_selector": "article>div>div>div>div>div>h1",
   "content_selector": "#maincontent",
   "date_selector": "summary>span",
-  "follow_links": true
+  "follow_links": true,
+  "article_identifier": "\\/\\d{4}\\/\\w+\\/\\d{2}\\/"
 }
