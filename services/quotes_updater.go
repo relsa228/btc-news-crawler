@@ -40,17 +40,17 @@ func (s *QuotesCollectorService) StartQuotesCollecting() {
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			logger.Log.Error("🛑 Error reading response body: %s", zap.Error(err))
+			logger.Log.Error("🛑 Error reading response body", zap.Error(err))
 			return
 		}
 
 		var apiResp responses.CoinmarketcapResponse
 		if err := json.Unmarshal(body, &apiResp); err != nil {
-			logger.Log.Error("🛑 JSON parsing error: %s", zap.Error(err))
+			logger.Log.Error("🛑 JSON parsing error", zap.Error(err))
 		}
 
 		if apiResp.Status.ErrorCode != 0 {
-			logger.Log.Error("🛑 CoinMarketCap error: %s", zap.String("status", apiResp.Status.ErrorMessage))
+			logger.Log.Error("🛑 CoinMarketCap error", zap.String("status", apiResp.Status.ErrorMessage))
 		}
 
 		btc := apiResp.Data["1"]

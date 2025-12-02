@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"btc-news-crawler/clients"
 	"btc-news-crawler/models"
 	"btc-news-crawler/models/configs"
+	shared "btc-news-crawler/shared"
 	consts "btc-news-crawler/shared/consts"
 	logger "btc-news-crawler/shared/log"
 
@@ -84,27 +87,45 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 		logger.Log.Error("🛑 Request error", zap.Error(err), zap.String("url", resp.Request.URL.String()))
 	})
 	c.OnScraped(func(_ *colly.Response) {
-		logger.Log.Info("✅ Resource %s has been scraped", zap.String("name", config.Name))
+		logger.Log.Info("✅ Resource has been scraped", zap.String("name", config.Name))
 	})
 
 	s.Crawlers[config.StartURL] = c
-	logger.Log.Info("✅ Crawler for %s has been set up", zap.String("name", config.Name))
+	logger.Log.Info("✅ Crawler has been set up", zap.String("name", config.Name))
 }
 
 func (s *NewsCrawlerService) StartCrawlers() {
+	batchSize, err := strconv.Atoi(os.Getenv(shared.CRAWLER_BATCH_SIZE_VAR))
+	if err != nil {
+		logger.Log.Error("🛑 Error parsing batch size", zap.Error(err))
+		return
+	}
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
 	for {
-		for startURL, crawler := range s.Crawlers {
+		crawlers := s.Crawlers
+		var wg sync.WaitGroup
+		count := 0
+		for startURL, crawler := range crawlers {
+			wg.Add(1)
+			count++
 			go func(url string, c *colly.Collector) {
-				logger.Log.Info("🚀 Running news crawler for", zap.String("url", url))
+				defer wg.Done()
+				logger.Log.Info("🚀 Running crawler", zap.String("url", url))
 				if err := c.Visit(url); err != nil {
-					logger.Log.Error("🛑 News scraping error for", zap.String("url", url), zap.Error(err))
+					logger.Log.Error("🛑 Error crawling", zap.String("url", url), zap.Error(err))
 				}
 				c.Wait()
-				logger.Log.Info("✅ News crawler has finished", zap.String("url", url))
+				logger.Log.Info("✅ Finished crawler", zap.String("url", url))
 			}(startURL, crawler)
+
+			if count%batchSize == 0 {
+				wg.Wait()
+				logger.Log.Info("✅ Batch completed, next batch starting...")
+			}
 		}
+		wg.Wait()
+		logger.Log.Info("🫡 All crawlers finished")
 		<-ticker.C
 	}
 }
