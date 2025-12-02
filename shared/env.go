@@ -7,4 +7,5 @@ const (
 	NEED_MIGRATION_VAR             = "NEED_MIGRATION"
 	CONFIG_DIR_VAR                 = "CONFIG_DIR"
 	CRAWLER_BATCH_SIZE_VAR         = "CRAWLER_BATCH_SIZE"
+	CRAWLER_SLEEP_VAR              = "CRAWLER_SLEEP"
 )

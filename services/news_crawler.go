@@ -100,7 +100,14 @@ func (s *NewsCrawlerService) StartCrawlers() {
 		logger.Log.Error("🛑 Error parsing batch size", zap.Error(err))
 		return
 	}
-	ticker := time.NewTicker(10 * time.Minute)
+
+	crawler_sleep, err := strconv.Atoi(os.Getenv(shared.CRAWLER_SLEEP_VAR))
+	if err != nil {
+		logger.Log.Error("🛑 Error parsing crawler sleep", zap.Error(err))
+		return
+	}
+
+	ticker := time.NewTicker(time.Duration(crawler_sleep) * time.Minute)
 	defer ticker.Stop()
 	for {
 		crawlers := s.Crawlers
