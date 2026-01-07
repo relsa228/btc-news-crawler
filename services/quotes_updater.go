@@ -33,24 +33,24 @@ func (s *QuotesCollectorService) StartQuotesCollecting() {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			logger.Log.Error("🛑 Quote response error: ", zap.Error(err))
+			logger.Log.Error("Quote response error: ", zap.Error(err))
 			return
 		}
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			logger.Log.Error("🛑 Error reading response body", zap.Error(err))
+			logger.Log.Error("Error reading response body", zap.Error(err))
 			return
 		}
 
 		var apiResp responses.CoinmarketcapResponse
 		if err := json.Unmarshal(body, &apiResp); err != nil {
-			logger.Log.Error("🛑 JSON parsing error", zap.Error(err))
+			logger.Log.Error("JSON parsing error", zap.Error(err))
 		}
 
 		if apiResp.Status.ErrorCode != 0 {
-			logger.Log.Error("🛑 CoinMarketCap error", zap.String("status", apiResp.Status.ErrorMessage))
+			logger.Log.Error("CoinMarketCap error", zap.String("status", apiResp.Status.ErrorMessage))
 		}
 
 		btc := apiResp.Data["1"]
