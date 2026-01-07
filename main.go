@@ -20,7 +20,7 @@ func main() {
 	defer logger.Log.Sync()
 
 	if err := godotenv.Load(); err != nil {
-		logger.Log.Error("🛑 .env file not found")
+		logger.Log.Error(".env file not found")
 		return
 	}
 
@@ -38,22 +38,18 @@ func main() {
 	})
 
 	if err != nil {
-		logger.Log.Error("🛑 Config directory read error: ", zap.Error(err))
+		logger.Log.Error("Config directory read error: ", zap.Error(err))
 	}
 
 	client := clients.NewDatabaseClient()
 	if os.Getenv(shared.NEED_MIGRATION_VAR) == "true" {
 		if err := client.Migrate(); err != nil {
-			logger.Log.Error("🛑 Error creating tables: ", zap.Error(err))
+			logger.Log.Error("Error creating tables: ", zap.Error(err))
 		}
 	}
 
-	news_service := services.NewNewsCrawlerService(client)
+	news_service := services.NewNewsCrawlerService(client, files)
 	quotes_service := services.NewQuotesCollectorService(client)
-
-	for _, file := range files {
-		news_service.AddCrawlerFromConfig(file)
-	}
 
 	var wg sync.WaitGroup
 

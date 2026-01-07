@@ -21,21 +21,21 @@ import (
 )
 
 type NewsCrawlerService struct {
-	Crawlers       map[string]*colly.Collector
-	DatabaseClient *clients.PostgresClient
+	CrawlersConfigs []string
+	DatabaseClient  *clients.PostgresClient
 }
 
-func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
+func (s *NewsCrawlerService) CreateCrawlerFromConfig(config_path string) (string, *colly.Collector) {
 	data, err := os.ReadFile(config_path)
 	if err != nil {
-		logger.Log.Error("🛑 JSON reading error:", zap.Error(err))
-		return
+		logger.Log.Error("JSON reading error:", zap.Error(err))
+		return "", nil
 	}
 
 	var config configs.NewsCrawlerConfig
 	err = json.Unmarshal(data, &config)
 	if err != nil {
-		logger.Log.Error("🛑 JSON parsing error:", zap.Error(err))
+		logger.Log.Error("JSON parsing error:", zap.Error(err))
 	}
 
 	re := regexp.MustCompile(config.ArticleIdentifier)
@@ -46,10 +46,10 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 	)
 
 	c.OnRequest(func(r *colly.Request) {
-		logger.Log.Debug("🔗 Visiting", zap.String("url", r.URL.String()))
+		logger.Log.Debug("Visiting", zap.String("url", r.URL.String()))
 	})
 	c.OnResponse(func(r *colly.Response) {
-		logger.Log.Debug("✅ Received:", zap.String("url", r.Request.URL.String()))
+		logger.Log.Debug("Received:", zap.String("url", r.Request.URL.String()))
 	})
 
 	c.IgnoreRobotsTxt = true
@@ -80,66 +80,74 @@ func (s *NewsCrawlerService) AddCrawlerFromConfig(config_path string) {
 		news.CreatedAt = time.Now()
 
 		s.DatabaseClient.InsertNews(news)
-		logger.Log.Info("📰 Got news", zap.String("title", news.Title), zap.String("source", news.Source))
+		logger.Log.Info("Got news", zap.String("title", news.Title), zap.String("source", news.Source))
 	})
 
 	c.OnError(func(resp *colly.Response, err error) {
-		logger.Log.Error("🛑 Request error", zap.Error(err), zap.String("url", resp.Request.URL.String()))
+		logger.Log.Error("Request error", zap.Error(err), zap.String("url", resp.Request.URL.String()))
 	})
 	c.OnScraped(func(_ *colly.Response) {
-		logger.Log.Info("✅ Resource has been scraped", zap.String("name", config.Name))
+		logger.Log.Info("Resource has been scraped", zap.String("name", config.Name))
 	})
 
-	s.Crawlers[config.StartURL] = c
-	logger.Log.Info("✅ Crawler has been set up", zap.String("name", config.Name))
+	logger.Log.Info("Crawler has been set up", zap.String("name", config.Name))
+
+	return config.StartURL, c
 }
 
 func (s *NewsCrawlerService) StartCrawlers() {
 	batchSize, err := strconv.Atoi(os.Getenv(shared.CRAWLER_BATCH_SIZE_VAR))
 	if err != nil {
-		logger.Log.Error("🛑 Error parsing batch size", zap.Error(err))
+		logger.Log.Error("Error parsing batch size", zap.Error(err))
 		return
 	}
 
 	crawler_sleep, err := strconv.Atoi(os.Getenv(shared.CRAWLER_SLEEP_VAR))
 	if err != nil {
-		logger.Log.Error("🛑 Error parsing crawler sleep", zap.Error(err))
+		logger.Log.Error("Error parsing crawler sleep", zap.Error(err))
 		return
 	}
 
-	ticker := time.NewTicker(time.Duration(crawler_sleep) * time.Minute)
-	defer ticker.Stop()
 	for {
-		crawlers := s.Crawlers
+		var crawlers_map = make(map[string]*colly.Collector)
+		for _, file := range s.CrawlersConfigs {
+			var start_url, crawler = s.CreateCrawlerFromConfig(file)
+			if start_url == "" || crawler == nil {
+				logger.Log.Error("Error creating crawler", zap.String("file", file))
+				continue
+			}
+			crawlers_map[start_url] = crawler
+		}
+
 		var wg sync.WaitGroup
 		count := 0
-		for startURL, crawler := range crawlers {
+		for startURL, crawler := range crawlers_map {
 			wg.Add(1)
 			count++
 			go func(url string, c *colly.Collector) {
 				defer wg.Done()
-				logger.Log.Info("🚀 Running crawler", zap.String("url", url))
+				logger.Log.Info("Running crawler", zap.String("url", url))
 				if err := c.Visit(url); err != nil {
-					logger.Log.Error("🛑 Error crawling", zap.String("url", url), zap.Error(err))
+					logger.Log.Error("Error crawling", zap.String("url", url), zap.Error(err))
 				}
 				c.Wait()
-				logger.Log.Info("✅ Finished crawler", zap.String("url", url))
+				logger.Log.Info("Finished crawler", zap.String("url", url))
 			}(startURL, crawler)
 
 			if count%batchSize == 0 {
 				wg.Wait()
-				logger.Log.Info("✅ Batch completed, next batch starting...")
+				logger.Log.Info("Batch completed, next batch starting...")
 			}
 		}
 		wg.Wait()
-		logger.Log.Info("🫡 All crawlers finished")
-		<-ticker.C
+		logger.Log.Info("All crawlers finished")
+		time.Sleep(time.Duration(crawler_sleep) * time.Minute)
 	}
 }
 
-func NewNewsCrawlerService(c *clients.PostgresClient) *NewsCrawlerService {
+func NewNewsCrawlerService(c *clients.PostgresClient, crawlersConfigs []string) *NewsCrawlerService {
 	return &NewsCrawlerService{
-		Crawlers:       make(map[string]*colly.Collector),
-		DatabaseClient: c,
+		CrawlersConfigs: crawlersConfigs,
+		DatabaseClient:  c,
 	}
 }

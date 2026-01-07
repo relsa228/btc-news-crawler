@@ -38,7 +38,7 @@ func (c *PostgresClient) InsertNews(news *models.News) {
 	`
 	_, err := c.ConnectionPool.NamedExec(query, news)
 	if err != nil {
-		logger.Log.Error("🛑 Error inserting news", zap.Error(err))
+		logger.Log.Error("Error inserting news", zap.Error(err))
 	}
 }
 
@@ -49,7 +49,7 @@ func (c *PostgresClient) InsertQuote(quote *models.Quote) {
 	`
 	_, err := c.ConnectionPool.NamedExec(query, quote)
 	if err != nil {
-		logger.Log.Error("🛑 Error inserting quote", zap.Error(err))
+		logger.Log.Error("Error inserting quote", zap.Error(err))
 	}
 }
 
