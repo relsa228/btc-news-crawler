@@ -1,11 +1,11 @@
 package clients
 
 import (
-	"btc-news-crawler/models"
-	env "btc-news-crawler/shared"
-	"os"
+	models "models"
+	env "shared"
+	logger "shared/log"
 
-	logger "btc-news-crawler/shared/log"
+	"os"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"

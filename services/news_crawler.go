@@ -9,20 +9,20 @@ import (
 	"sync"
 	"time"
 
-	"btc-news-crawler/clients"
-	"btc-news-crawler/models"
-	"btc-news-crawler/models/configs"
-	shared "btc-news-crawler/shared"
-	consts "btc-news-crawler/shared/consts"
-	logger "btc-news-crawler/shared/log"
-
 	"github.com/gocolly/colly/v2"
 	"go.uber.org/zap"
+
+	clients "clients"
+	models "models"
+	configs "models/configs"
+	shared "shared"
+	consts "shared/consts"
+	logger "shared/log"
 )
 
 type NewsCrawlerService struct {
 	CrawlersConfigs []string
-	DatabaseClient  *clients.PostgresClient
+	DatabaseClient  clients.DatabaseClient
 }
 
 func (s *NewsCrawlerService) CreateCrawlerFromConfig(config_path string) (string, *colly.Collector) {

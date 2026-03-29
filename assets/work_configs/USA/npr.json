@@ -1,0 +1,11 @@
+{
+  "name": "NPR",
+  "start_url": "https://www.npr.org/",
+  "allowed_domains": ["npr.org", "www.npr.org"],
+  "article_selector": "article>div>div>a",
+  "title_selector": "div.storytitle > h1",
+  "content_selector": "div.storytext",
+  "date_selector": "span.time",
+  "follow_links": true,
+  "article_identifier": "\\/\\d{4}\\/\\d{2}\\/\\d{2}\\/"
+}

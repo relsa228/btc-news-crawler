@@ -7,20 +7,20 @@ import (
 	"os"
 	"time"
 
-	"btc-news-crawler/clients"
-	"btc-news-crawler/models"
-	"btc-news-crawler/models/responses"
-	env "btc-news-crawler/shared"
-	consts "btc-news-crawler/shared/consts"
-	logger "btc-news-crawler/shared/log"
-
 	"go.uber.org/zap"
+
+	clients "clients"
+	models "models"
+	responses "models/responses"
+	env "shared"
+	consts "shared/consts"
+	logger "shared/log"
 )
 
 type QuotesCollectorService struct {
 	ApiKey         string
 	Endpoint       string
-	DatabaseClient *clients.PostgresClient
+	DatabaseClient clients.DatabaseClient
 }
 
 func (s *QuotesCollectorService) StartQuotesCollecting() {

@@ -1,18 +1,20 @@
 package main
 
 import (
-	"btc-news-crawler/clients"
-	"btc-news-crawler/services"
-	shared "btc-news-crawler/shared"
-	logger "btc-news-crawler/shared/log"
 	"log"
 	"os"
 	"path/filepath"
+
 	"strings"
 	"sync"
 
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
+
+	clients "clients"
+	services "services"
+	shared "shared"
+	logger "shared/log"
 )
 
 func main() {
